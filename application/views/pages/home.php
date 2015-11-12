@@ -10,7 +10,7 @@
                         <hr class="intro-divider">
 						<?php if(isset($loggedin))?>
 						<?php if($loggedin){?>
-						Check your  <a href="<?php echo base_url();?>auth/profile">Profile</a>
+						 <a href="<?php echo base_url();?>auth/profile"class="btn btn-default btn-lg"><i class="fa  fa-fw"></i> <span class="network-name">Check your Profile</span></a>
 						<?php } else{?>
 						<ul class="list-inline intro-social-buttons">
 							<li>
