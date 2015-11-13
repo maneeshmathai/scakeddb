@@ -19,6 +19,10 @@
                         <li>
                              <a href="<?php echo base_url();?>auth/profile">Profile</a>
                         </li>
+						<li class="footer-menu-divider">&sdot;</li>
+                        <li>
+                             <a href="<?php echo base_url();?>auth">Admin</a>
+                        </li>
 						 <li class="footer-menu-divider">&sdot;</li>
                         <li>
                            <?php if(isset($loggedin))?>

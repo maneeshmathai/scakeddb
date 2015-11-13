@@ -1,3 +1,4 @@
+<div class="well">
 <h1><?php echo lang('edit_user_heading');?></h1>
 <p><?php echo lang('edit_user_subheading');?></p>
 
@@ -24,15 +25,15 @@
             <?php echo lang('edit_user_phone_label', 'phone');?> <br />
             <?php echo form_input($phone);?>
       </p>
-
-      <p>
-            <?php echo lang('edit_user_password_label', 'password');?> <br />
-            <?php echo form_input($password);?>
-      </p>
-
-      <p>
-            <?php echo lang('edit_user_password_confirm_label', 'password_confirm');?><br />
-            <?php echo form_input($password_confirm);?>
+	  <p>
+            <?php echo lang('edit_user_gender_label', 'gender');?> <br />
+            <?php 
+			$options = array(
+                  'male'  => 'Male',
+                  'female'    => 'Female',
+                  'other'   => 'Other',
+                );
+			echo form_dropdown('gender',$options,$gender["value"]);?>
       </p>
 
       <?php if ($this->ion_auth->is_admin()): ?>
@@ -64,3 +65,4 @@
       <p><?php echo form_submit('submit', lang('edit_user_submit_btn'));?></p>
 
 <?php echo form_close();?>
+</div>
