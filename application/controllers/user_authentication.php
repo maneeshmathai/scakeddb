@@ -66,6 +66,7 @@ if(!$this->Ion_auth_model->username_check($userData->email))
                 'first_name' => $userData->given_name,
                 'last_name'  => $userData->family_name,
                 'gender'    => $userData->gender,
+				'picture'    => $userData->picture,
             );
 $this->ion_auth->register($userData->email,"secret_key_user.321",$userData->email,$additional_data);		
 }

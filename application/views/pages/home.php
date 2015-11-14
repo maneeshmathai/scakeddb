@@ -19,9 +19,6 @@
                             <li>
                                 <a href="<?php echo base_url();?>login" class="btn btn-default btn-lg"><i class="fa  fa-envelope-o fa-fw"></i> <span class="network-name">Google</span></a>
                             </li>
-                            <li>
-                                <a href="<?php echo base_url();?>login" class="btn btn-default btn-lg"><i class="fa  fa-envelope-o fa-fw"></i> <span class="network-name">CMCRC</span></a>
-                            </li>
                         </ul>
 						<?php }?>
                     </div>

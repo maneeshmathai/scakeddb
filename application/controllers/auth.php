@@ -566,8 +566,6 @@ class Auth extends CI_Controller {
 				$data = array(
 					'first_name' => $this->input->post('first_name'),
 					'last_name'  => $this->input->post('last_name'),
-					'phone'  => $this->input->post('phone'),
-					'company'  => $this->input->post('company'),
 					'gender'      => $this->input->post('gender'),
 				);
 
@@ -607,7 +605,7 @@ class Auth extends CI_Controller {
 					}
 					else
 					{
-						redirect('/', 'refresh');
+						redirect('/auth/profile', 'refresh');
 					}
 
 			    }
@@ -839,6 +837,7 @@ class Auth extends CI_Controller {
 	
 	function profile()
 	{
+		
 		if (!$this->ion_auth->logged_in())
 		{
 			redirect('login', 'refresh');
@@ -849,11 +848,36 @@ class Auth extends CI_Controller {
 		$data['loggedin']=false;
 		if ($this->ion_auth->logged_in())
 		$data['loggedin']=true;
+		
+		$data['moves']=false;
+		$user = $this->doctrine->em->find('Entities\Users', $id);
+		if(!is_null($this->doctrine->em->getRepository('Entities\UserApps')->
+			findOneBy(array('user' => $user))))
+		$data['moves']=true;	
+		else
+		$this->activateMoves($id,$this->input->get('code'));
 		$this->load->view('templates/header.php',$data);
 		$this->load->view('templates/nav.php');
 		$this->load->view('pages/profile',$data);
 		$this->load->view('templates/footer.php');
 		
+		
+	}
+	
+	function activateMoves($user_id,$code)
+	{
+		$user = $this->doctrine->em->find('Entities\Users', $user_id);
+		if($this->uri->segment(3)&&$this->uri->segment(3, 0)=="moves")
+		{
+			$user_apps = new Entities\UserApps;
+			$user_apps->setCode($code);
+			$user_apps->setUser($user);
+			$user_apps->setName("Moves");
+			$this->doctrine->em->persist($user_apps);
+			$this->doctrine->em->flush();
+			redirect('auth/profile', 'refresh');
+		}
+
 	}
 
 }

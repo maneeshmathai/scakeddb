@@ -10,7 +10,7 @@
                 </div>             
                 <div class="col-xs-12 col-sm-4 text-center">
                     <figure>
-                        <img src="<?php echo base_url();?>/images/male.png" alt="" class="img-circle img-responsive">
+                        <img src="<?php echo $user->picture;?>" alt="" class="img-circle img-responsive">
                         <figcaption class="ratings">
                             <p>Ratings
                             <a href="#">
@@ -32,17 +32,28 @@
                         </figcaption>
                     </figure>
                 </div>
+				<div class="col-xs-12 col-sm-8 col-sm-height">
+				</div>
+				<div class="col-xs-12 col-sm-4 col-sm-height">
+				<a href="<?php echo base_url();?>auth/edit_user/<?php echo $user->id;?>" class="btn btn-info btn-block" role="button"><span class="fa"></span>Edit Profile</a>
+				</div>
+				<div class="panel-body text-center">
+				</div>
             </div>            
             <div class="col-xs-12 divider text-center">
                 <div class="col-xs-12 col-sm-6 emphasis">
                     <h2><strong> MOVES </strong></h2>                    
                     <p><small>Activity Tracker</small></p>
-                    <button class="btn btn-info btn-block"><span class="fa "></span> Activate </button>
+					<?php if(!$moves):?>
+                    <a href="https://api.moves-app.com/oauth/v1/authorize?response_type=code&client_id=4Lk81jtiK0Hh2UcRcyBbTyh5AMS7ZZJ6&scope=activity&redirect_uri=<?php echo base_url();?>auth/profile/moves" class="btn btn-info btn-danger btn-block" role="button"><span class="fa"></span>Activate</a>
+					<?php else:?>
+					<button class="btn btn-block btn-success disabled"><span class="fa"></span> Activated Successfully</button>
+					<?php endif;?>
                 </div>
                 <div class="col-xs-12 col-sm-6 emphasis">
                     <h2><strong>KRUMBS</strong></h2>                    
                     <p><small>Food Diary</small></p>
-                    <button class="btn btn-info btn-block"><span class="fa"></span> Activate </button>
+                    <button class="btn btn-info btn-block btn-danger disabled"><span class="fa"></span> Not Enabled </button>
                 </div>
               </div>
     	 </div>                 
