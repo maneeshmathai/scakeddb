@@ -1,0 +1,39 @@
+Entities\Moves:
+  type: entity
+  table: moves
+  fields:
+    id:
+      id: true
+      type: integer
+      unsigned: false
+      nullable: false
+      generator:
+        strategy: IDENTITY
+    accessToken:
+      type: text
+      nullable: false
+      column: access_token
+    expiresIn:
+      type: integer
+      unsigned: false
+      nullable: false
+      column: expires_in
+    refreshToken:
+      type: text
+      nullable: false
+      column: refresh_token
+    movesUserId:
+      type: text
+      nullable: false
+      column: moves_user_id
+  oneToOne:
+    userApps:
+      targetEntity: UserApps
+      cascade: {  }
+      mappedBy: null
+      inversedBy: null
+      joinColumns:
+        user_apps_id:
+          referencedColumnName: id
+      orphanRemoval: false
+  lifecycleCallbacks: {  }

@@ -6,7 +6,7 @@ class Auth extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->database();
-		$this->load->library(array('ion_auth','form_validation'));
+		$this->load->library(array('ion_auth','form_validation','moves'));
 		$this->load->helper(array('url','language'));
 
 		$this->form_validation->set_error_delimiters($this->config->item('error_start_delimiter', 'ion_auth'), $this->config->item('error_end_delimiter', 'ion_auth'));
@@ -875,7 +875,22 @@ class Auth extends CI_Controller {
 			$user_apps->setName("Moves");
 			$this->doctrine->em->persist($user_apps);
 			$this->doctrine->em->flush();
+			$this->moves->redirect_url=base_url()."auth/profile/moves";
+			$token =$this->moves->auth($code);
+			
+			if(isset($token['access_token']))
+			{
+				$moves = new Entities\Moves;
+				$moves->setAccessToken($token['access_token']);
+				$moves->setExpiresIn($token['expires_in']);
+				$moves->setRefreshToken($token['refresh_token']);
+				$moves->setMovesUserId($token['user_id']);
+				$moves->setuserApps($user_apps);
+				$this->doctrine->em->persist($moves);
+				$this->doctrine->em->flush();
+			}
 			redirect('auth/profile', 'refresh');
+			
 		}
 
 	}
