@@ -7,7 +7,7 @@ class Auth extends CI_Controller {
 		parent::__construct();
 		$this->load->database();
 		$this->load->library(array('ion_auth','form_validation','moves'));
-		$this->load->helper(array('url','language'));
+		$this->load->helper(array('url','language','file'));
 
 		$this->form_validation->set_error_delimiters($this->config->item('error_start_delimiter', 'ion_auth'), $this->config->item('error_end_delimiter', 'ion_auth'));
 
@@ -851,11 +851,16 @@ class Auth extends CI_Controller {
 		
 		$data['moves']=false;
 		$user = $this->doctrine->em->find('Entities\Users', $id);
-		if(!is_null($this->doctrine->em->getRepository('Entities\UserApps')->
-			findOneBy(array('user' => $user))))
+		$user_apps = $this->doctrine->em->getRepository('Entities\UserApps')->
+			findOneBy(array('user' => $user,'name'=>'Moves'));
+		if(!is_null($user_apps))
 		$data['moves']=true;	
 		else
 		$this->activateMoves($id,$this->input->get('code'));
+		
+		$moves_activity =$this->doctrine->em->getRepository('Entities\MovesActivity')->
+			findOneBy(array('userApps' => $user_apps));
+		$data['moves_activity'] = $moves_activity;
 		$this->load->view('templates/header.php',$data);
 		$this->load->view('templates/nav.php');
 		$this->load->view('pages/profile',$data);
@@ -888,7 +893,43 @@ class Auth extends CI_Controller {
 				$moves->setuserApps($user_apps);
 				$this->doctrine->em->persist($moves);
 				$this->doctrine->em->flush();
+				
+							
+				$profile= json_decode($this->moves->get_profile($token['access_token']));
+				$tdate=date("Ymd");
+				$diff=date_diff(date_create($profile->profile->firstDate),date_create($tdate));
+				if($diff->format("%R%a")>30)
+				$sdate=date_sub(date_create($tdate), date_interval_create_from_date_string('30 days'))->format("Ymd");
+				else
+				$sdate = $profile->profile->firstDate;
+				$data = $this->moves->get_range($token['access_token'],"/user/summary/daily",$sdate,$tdate);
+				$path = "data/".$user_id;
+				$fullData = json_decode($data);
+				$steps =$distance=null;
+				foreach($fullData as $sData)
+				{
+					if(!is_null($sData->summary))
+					foreach($sData->summary as $summary)
+					if($summary->activity=="walking")
+					{
+						$steps=$steps+$summary->steps;
+						$distance=$distance+$summary->distance;
+					}
+				}
+				if(!file_exists($path))
+				mkdir($path,0777,true);
+				write_file('data/'.$user_id.'/'.$tdate.'.json', $data);
+		
+				
 			}
+			$moves_Activity = new Entities\MovesActivity;
+			$moves_Activity->setSteps($steps);
+			$moves_Activity->setActivity("Walking");
+			$moves_Activity->setDateUpdated(date_create($tdate));
+			$moves_Activity->setDistance($distance);
+			$moves_Activity->setuserApps($user_apps);
+			$this->doctrine->em->persist($moves_Activity);
+			$this->doctrine->em->flush();
 			redirect('auth/profile', 'refresh');
 			
 		}

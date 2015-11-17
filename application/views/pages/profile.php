@@ -1,6 +1,10 @@
 <div class="container">
 	<div class="row">
+	<?php if($moves):?>
+		<div class="col-md-offset-2 col-md-8 col-lg-offset-1 col-lg-6">
+		<?php else:?>
 		<div class="col-md-offset-2 col-md-8 col-lg-offset-3 col-lg-6">
+		<?php endif;?>
     	 <div class="well profile">
             <div class="col-sm-12">
                 <div class="col-xs-12 col-sm-8">
@@ -56,8 +60,21 @@
                     <button class="btn btn-info btn-block btn-danger disabled"><span class="fa"></span> Not Enabled </button>
                 </div>
               </div>
-    	 </div>                 
+    	 </div>    
+				
 		</div>
+		<?php if($moves):?>
+		<div class="well profile">
+				<div class="col-sm-12">
+					<div class="col-xs-12">
+					<h2><strong>Moves Data</strong></h2>
+					<p><small>Activity : <?php echo $moves_activity->getactivity();?></small></p>
+					<p><small>Total Steps : <?php echo $moves_activity->getsteps();?></small></p>
+					<p><small>Total distance : <?php echo $moves_activity->getdistance()/1000;?> km</small></p>
+					</div>
+				</div>
+		</div>	
+		<?php endif;?>
 	</div>
 </div>
 </body>
