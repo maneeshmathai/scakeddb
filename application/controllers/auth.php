@@ -696,9 +696,11 @@ class Auth extends CI_Controller {
 		$moves_activity =$this->doctrine->em->getRepository('Entities\MovesActivity')->
 			findOneBy(array('userApps' => $user_apps));
 		$data['moves_activity'] = $moves_activity;
+		if(isset($moves_activity)){
 		$moves_average_date=date_diff(date_create($moves_activity->getSdate()->format('Y-m-d')),date_create($moves_activity->getDateUpdated()->format('Y-m-d')));
 		$data['moves_average']=$moves_activity->getSteps()/$moves_average_date->format("%R%a");
 		$data['moves_average_percentage']=$data['moves_average']/100;
+		}
 		$this->load->view('pages/profile',$data);	
 		$this->load->view('templates/footer.php');
 	}
