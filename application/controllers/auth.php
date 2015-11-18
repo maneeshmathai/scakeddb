@@ -685,7 +685,21 @@ class Auth extends CI_Controller {
 			$this->load->view('templates/header.php',$data);
 			$this->load->view('templates/nav.php');
 
-		$this->_render_page('auth/edit_user', $this->data);
+		$this->load->view('auth/edit_user', $this->data);
+		$data['puser'] = $this->ion_auth->user($this->uri->slash_segment(3))->row();
+		$data['moves']=false;
+		$user = $this->doctrine->em->find('Entities\Users', $this->uri->slash_segment(3));
+		$user_apps = $this->doctrine->em->getRepository('Entities\UserApps')->
+			findOneBy(array('user' => $user,'name'=>'Moves'));
+		if(!is_null($user_apps))
+		$data['moves']=true;
+		$moves_activity =$this->doctrine->em->getRepository('Entities\MovesActivity')->
+			findOneBy(array('userApps' => $user_apps));
+		$data['moves_activity'] = $moves_activity;
+		$moves_average_date=date_diff(date_create($moves_activity->getSdate()->format('Y-m-d')),date_create($moves_activity->getDateUpdated()->format('Y-m-d')));
+		$data['moves_average']=$moves_activity->getSteps()/$moves_average_date->format("%R%a");
+		$data['moves_average_percentage']=$data['moves_average']/100;
+		$this->load->view('pages/profile',$data);	
 		$this->load->view('templates/footer.php');
 	}
 
@@ -861,6 +875,11 @@ class Auth extends CI_Controller {
 		$moves_activity =$this->doctrine->em->getRepository('Entities\MovesActivity')->
 			findOneBy(array('userApps' => $user_apps));
 		$data['moves_activity'] = $moves_activity;
+		if(isset($moves_activity)){
+		$moves_average_date=date_diff(date_create($moves_activity->getSdate()->format('Y-m-d')),date_create($moves_activity->getDateUpdated()->format('Y-m-d')));
+		$data['moves_average']=$moves_activity->getSteps()/$moves_average_date->format("%R%a");
+		$data['moves_average_percentage']=$data['moves_average']/100;
+		}
 		$this->load->view('templates/header.php',$data);
 		$this->load->view('templates/nav.php');
 		$this->load->view('pages/profile',$data);
@@ -928,6 +947,7 @@ class Auth extends CI_Controller {
 			$moves_Activity->setDateUpdated(date_create($tdate));
 			$moves_Activity->setDistance($distance);
 			$moves_Activity->setuserApps($user_apps);
+			$moves_Activity->setSdate(date_create($sdate));
 			$this->doctrine->em->persist($moves_Activity);
 			$this->doctrine->em->flush();
 			redirect('auth/profile', 'refresh');

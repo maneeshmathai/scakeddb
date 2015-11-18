@@ -111,10 +111,22 @@ class MovesActivity extends \Entities\MovesActivity implements \Doctrine\ORM\Pro
         return parent::getUserApps();
     }
 
+    public function setSdate($sdate)
+    {
+        $this->__load();
+        return parent::setSdate($sdate);
+    }
+
+    public function getSdate()
+    {
+        $this->__load();
+        return parent::getSdate();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'steps', 'activity', 'dateUpdated', 'distance', 'userApps');
+        return array('__isInitialized__', 'id', 'steps', 'activity', 'dateUpdated', 'distance', 'sdate', 'userApps');
     }
 
     public function __clone()

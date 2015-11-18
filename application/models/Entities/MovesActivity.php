@@ -159,4 +159,31 @@ class MovesActivity
     {
         return $this->userApps;
     }
+    /**
+     * @var date $sdate
+     */
+    private $sdate;
+
+
+    /**
+     * Set sdate
+     *
+     * @param date $sdate
+     * @return MovesActivity
+     */
+    public function setSdate($sdate)
+    {
+        $this->sdate = $sdate;
+        return $this;
+    }
+
+    /**
+     * Get sdate
+     *
+     * @return date 
+     */
+    public function getSdate()
+    {
+        return $this->sdate;
+    }
 }

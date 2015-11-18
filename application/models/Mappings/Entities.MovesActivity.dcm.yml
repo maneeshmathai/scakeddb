@@ -24,6 +24,9 @@ Entities\MovesActivity:
       type: integer
       unsigned: false
       nullable: false
+    sdate:
+      type: date
+      nullable: false
   oneToOne:
     userApps:
       targetEntity: UserApps
