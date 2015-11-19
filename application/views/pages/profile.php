@@ -90,7 +90,7 @@
 		</div>
 		
 		<?php if($moves):?>
-		<div class="col-md-12 col-lg-6">
+		<div class="col-md-12 col-lg-4">
 		<div class="well profile">
 				<div class="col-sm-12">
 					<div class="col-xs-12">
