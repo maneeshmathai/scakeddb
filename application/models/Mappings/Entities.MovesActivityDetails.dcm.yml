@@ -1,6 +1,6 @@
-Entities\MovesActivity:
+Entities\MovesActivityDetails:
   type: entity
-  table: moves_activity
+  table: moves_activity_details
   fields:
     id:
       id: true
@@ -9,21 +9,25 @@ Entities\MovesActivity:
       nullable: false
       generator:
         strategy: IDENTITY
-    dateUpdated:
-      type: date
+    activity:
+      type: text
       nullable: false
-      column: date_updated
-    sdate:
-      type: date
+    steps:
+      type: integer
+      unsigned: false
+      nullable: false
+    distance:
+      type: integer
+      unsigned: false
       nullable: false
   oneToOne:
-    userApps:
-      targetEntity: UserApps
+    movesActivity:
+      targetEntity: MovesActivity
       cascade: {  }
       mappedBy: null
       inversedBy: null
       joinColumns:
-        user_apps_id:
+        moves_activity_id:
           referencedColumnName: id
       orphanRemoval: false
   lifecycleCallbacks: {  }

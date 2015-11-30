@@ -697,10 +697,18 @@ class Auth extends CI_Controller {
 			findOneBy(array('userApps' => $user_apps));
 		$data['moves_activity'] = $moves_activity;
 		if(isset($moves_activity)){
-		$moves_average_date=date_diff(date_create($moves_activity->getSdate()->format('Y-m-d')),date_create($moves_activity->getDateUpdated()->format('Y-m-d')));
-		$data['moves_average']=$moves_activity->getSteps()/$moves_average_date->format("%R%a");
-		$data['moves_average_percentage']=$data['moves_average']/100;
-		}
+			$moves_average_date=date_diff(date_create($moves_activity->getSdate()->format('Y-m-d')),date_create($moves_activity->getDateUpdated()->format('Y-m-d')));
+			$moves_activity_details =$this->doctrine->em->getRepository('Entities\MovesActivityDetails')->
+				findBy(array('movesActivity' => $moves_activity));
+			$data['moves_activity_details']	=$moves_activity_details;
+				foreach($moves_activity_details as $moves_activity_detail){
+					if($moves_activity_detail->getActivity()=="Walking"){
+					$data['moves_average']=$moves_activity_detail->getSteps()/$moves_average_date->format("%R%a");
+					$data['moves_average_percentage']=$data['moves_average']/100;
+					}
+				}
+			}	
+
 		$this->load->view('pages/profile',$data);	
 		$this->load->view('templates/footer.php');
 	}
@@ -878,10 +886,17 @@ class Auth extends CI_Controller {
 			findOneBy(array('userApps' => $user_apps));
 		$data['moves_activity'] = $moves_activity;
 		if(isset($moves_activity)){
-		$moves_average_date=date_diff(date_create($moves_activity->getSdate()->format('Y-m-d')),date_create($moves_activity->getDateUpdated()->format('Y-m-d')));
-		$data['moves_average']=$moves_activity->getSteps()/$moves_average_date->format("%R%a");
-		$data['moves_average_percentage']=$data['moves_average']/100;
-		}
+			$moves_average_date=date_diff(date_create($moves_activity->getSdate()->format('Y-m-d')),date_create($moves_activity->getDateUpdated()->format('Y-m-d')));
+			$moves_activity_details =$this->doctrine->em->getRepository('Entities\MovesActivityDetails')->
+				findBy(array('movesActivity' => $moves_activity));
+			$data['moves_activity_details']	=$moves_activity_details;
+				foreach($moves_activity_details as $moves_activity_detail){
+					if($moves_activity_detail->getActivity()=="Walking"){
+					$data['moves_average']=$moves_activity_detail->getSteps()/$moves_average_date->format("%R%a");
+					$data['moves_average_percentage']=$data['moves_average']/100;
+					}
+				}
+			}
 		$this->load->view('templates/header.php',$data);
 		$this->load->view('templates/nav.php');
 		$this->load->view('pages/profile',$data);
@@ -893,7 +908,7 @@ class Auth extends CI_Controller {
 	function activateMoves($user_id,$code)
 	{
 		$user = $this->doctrine->em->find('Entities\Users', $user_id);
-		if($this->uri->segment(3)&&$this->uri->segment(3, 0)=="moves")
+		if($this->uri->segment(3)&&$this->uri->segment(3, 0)=="moves"&&$code)
 		{
 			$user_apps = new Entities\UserApps;
 			$user_apps->setCode($code);
@@ -915,6 +930,9 @@ class Auth extends CI_Controller {
 				$this->doctrine->em->persist($moves);
 				$this->doctrine->em->flush();
 				
+				
+				
+				
 							
 				$profile= json_decode($this->moves->get_profile($token['access_token']));
 				$tdate=date("Ymd");
@@ -923,39 +941,61 @@ class Auth extends CI_Controller {
 				$sdate=date_sub(date_create($tdate), date_interval_create_from_date_string('30 days'))->format("Ymd");
 				else
 				$sdate = $profile->profile->firstDate;
+				
+				
+				$moves_Activity = new Entities\MovesActivity;
+				$moves_Activity->setDateUpdated(date_create($tdate));
+				$moves_Activity->setuserApps($user_apps);
+				$moves_Activity->setSdate(date_create($sdate));
+				$this->doctrine->em->persist($moves_Activity);
+				$this->doctrine->em->flush();
+				
+				
+				
+				
 				$data = $this->moves->get_range($token['access_token'],"/user/summary/daily",$sdate,$tdate);
 				$path = "data/".$user_id;
 				$fullData = json_decode($data);
-				$steps =$distance=null;
+				$wsteps =$wdistance=$cdistance=null;
 				foreach($fullData as $sData)
 				{
 					if(!is_null($sData->summary))
 					foreach($sData->summary as $summary)
 					if($summary->activity=="walking")
 					{
-						$steps=$steps+$summary->steps;
-						$distance=$distance+$summary->distance;
+						$wsteps=$wsteps+$summary->steps;
+						$wdistance=$wdistance+$summary->distance;
 					}
+					if($summary->activity=="cycling")
+					{
+						$cdistance=$cdistance+$summary->distance;
+					}
+	
 				}
+				if(!is_null($wsteps))
+				$this->updateMovesActivityDetails($moves_Activity,"Walking",$wdistance,$wsteps);
+				if(!is_null($cdistance))
+				$this->updateMovesActivityDetails($moves_Activity,"Cycling",$cdistance);
 				if(!file_exists($path))
 				mkdir($path,0777,true);
 				write_file('data/'.$user_id.'/'.$tdate.'.json', $data);
-		
-				
 			}
-			$moves_Activity = new Entities\MovesActivity;
-			$moves_Activity->setSteps($steps);
-			$moves_Activity->setActivity("Walking");
-			$moves_Activity->setDateUpdated(date_create($tdate));
-			$moves_Activity->setDistance($distance);
-			$moves_Activity->setuserApps($user_apps);
-			$moves_Activity->setSdate(date_create($sdate));
-			$this->doctrine->em->persist($moves_Activity);
-			$this->doctrine->em->flush();
+			
 			redirect('auth/profile', 'refresh');
 			
 		}
 
+	}
+	
+	private function updateMovesActivityDetails($moves_Activity,$activity,$distance,$steps=null)
+	{
+		$moves_activity_details = new Entities\MovesActivityDetails;
+		$moves_activity_details->setActivity(ucwords($activity));
+		$moves_activity_details->setSteps($steps);
+		$moves_activity_details->setDistance($distance);
+		$moves_activity_details->setMovesActivity($moves_Activity);
+		$this->doctrine->em->persist($moves_activity_details);
+		$this->doctrine->em->flush();
 	}
 
 }

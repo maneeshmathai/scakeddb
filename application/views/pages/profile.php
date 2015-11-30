@@ -21,6 +21,7 @@
 						<?php if($moves):?>
                         <figcaption class="ratings">
                             <p>Ratings
+							<?php if(isset($moves_average_percentage)):?>
 							<?php $star = (int)($moves_average_percentage/20);
 							for($i=0;$i<$star;$i++){?>
 							<a href="#">
@@ -36,7 +37,8 @@
                             
                             </p>
                         </figcaption>
-						<?php endif;?>	
+						<?php endif;?>
+						<?php endif;?>							
                     </figure>
                 </div>
 				<div class="col-xs-12 col-sm-8 col-sm-height">
@@ -50,7 +52,9 @@
 			<?php if($moves):?>
 			<div class="col-xs-12 divider text-center"> 
 			<h3><strong>Health Summary</strong></h3>
+						<?php if(isset($moves_average_percentage)):?>
 						<p>Average steps per day: <?php echo (int)$moves_average;?></p>
+						<?php endif;?>
 						<div class="progress">
 						<?php 
 						
@@ -95,11 +99,18 @@
 				<div class="col-sm-12">
 					<div class="col-xs-12">
 					<h2><strong>Moves Data</strong></h2>
-					<p><small>Activity : <?php echo $moves_activity->getactivity();?></small></p>
-					<p><small>Total Steps : <?php echo $moves_activity->getsteps();?></small></p>
-					<p><small>Total distance : <?php echo $moves_activity->getdistance()/1000;?> km</small></p>
+					<?php foreach($moves_activity_details as $moves_activity_detail):?>
+					<?php if($moves_activity_detail->getactivity()=="Walking"):?>
+					<p><small>Activity : <?php echo $moves_activity_detail->getactivity();?></small></p>
+					<p><small>Total Steps : <?php echo $moves_activity_detail->getsteps();?></small></p>
+					<p><small>Total distance : <?php echo $moves_activity_detail->getdistance()/1000;?> km</small></p>
+					<?php endif;?>
+					<?php if($moves_activity_detail->getactivity()=="Cycling"):?>
+					<p><small>Activity : <?php echo $moves_activity_detail->getactivity();?></small></p>
+					<p><small>Total distance : <?php echo $moves_activity_detail->getdistance()/1000;?> km</small></p>
+					<?php endif;?>
+					<?php endforeach;?>
 					<p><small>Last Updated : <?php echo $moves_activity->getDateUpdated()->format('Y-m-d');?> </small></p>
-					
 				</div>
 		</div>	
 		</div>
