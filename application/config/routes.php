@@ -40,6 +40,7 @@
 $route['login/logout'] = 'user_authentication/logout';
 $route['login'] = 'user_authentication';
 $route['auth'] = 'auth';
+$route['logManager'] = 'logManager';
 $route['pages/(:any)']="pages/view/$1";
 $route['default_controller'] = "pages/view";
 $route['404_override'] = '';
