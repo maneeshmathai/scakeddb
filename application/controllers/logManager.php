@@ -18,10 +18,17 @@ class LogManager extends CI_Controller
 				$moves =$this->doctrine->em->getRepository('Entities\Moves')->
 					findOneBy(array('userApps' => $user_apps));
 				$moves_activity =$this->doctrine->em->getRepository('Entities\MovesActivity')->
-					findOneBy(array('userApps' => $user_apps));			
+					findOneBy(array('userApps' => $user_apps));
+						
 				$dateObject = new DateTime();
 				$objtdate =  $dateObject->sub( new DateInterval('P02D') );
 				$tdate=$objtdate->format('Y-m-d');
+
+				if($moves_activity->getDateUpdated()->format('Y-m-d')==$tdate)
+				{
+					echo "date exists";
+					exit();
+				}
 				$data = $this->moves->get_range($moves->getAccessToken(),"/user/summary/daily",$tdate,$tdate,array('timezone'=>'Australia/Sydney'));
 				echo "</br>";
 				foreach(json_decode($data) as $sData)
